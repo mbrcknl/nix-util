@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 set -euo pipefail
-nix flake check --quiet
+nix flake check --print-build-logs
