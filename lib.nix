@@ -11,7 +11,7 @@ let
       merge_perSystem = outputs: system:
         let
           new = mapAttrs (_: v: { ${system} = v; }) (perSystem {
-            inherit system;
+            inherit nixpkgs system;
             pkgs = nixpkgs.legacyPackages.${system};
           });
           merge = attrs: n:
