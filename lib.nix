@@ -6,12 +6,12 @@ let
   inherit (nixpkgs.lib) attrNames mapAttrs foldl';
   inherit (nixpkgs.lib.attrsets) unionOfDisjoint; 
 
-  mkFlake = { flake ? _: {}, perSystem ? _: {} }:
+  mkFlake = { inputs ? {}, flake ? _: {}, perSystem ? _: {} }:
     let
       merge_perSystem = outputs: system:
         let
           new = mapAttrs (_: v: { ${system} = v; }) (perSystem {
-            inherit nixpkgs system;
+            inherit inputs nixpkgs system;
             pkgs = nixpkgs.legacyPackages.${system};
           });
           merge = attrs: n:
@@ -19,7 +19,7 @@ let
         in foldl' merge outputs (attrNames new);
 
       perSystem_outputs = foldl' merge_perSystem {} systems;
-      flake_outputs = flake { inherit nixpkgs systems; };
+      flake_outputs = flake { inherit inputs nixpkgs systems; };
 
       expand_apps = mapAttrs (key: val:
         if key == "apps" && typeOf val == "set"
