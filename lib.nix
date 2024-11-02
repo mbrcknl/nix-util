@@ -10,9 +10,10 @@ let
     let
       merge_perSystem = outputs: system:
         let
-          new = mapAttrs (_: v: { ${system} = v; }) (perSystem {
+          new = mapAttrs (_: v: { ${system} = v; }) (perSystem rec {
             inherit inputs nixpkgs system;
             pkgs = nixpkgs.legacyPackages.${system};
+            util = perSystemUtil { inherit system pkgs; };
           });
           merge = attrs: n:
             attrs // { ${n} = (outputs.${n} or {}) // new.${n}; };
@@ -43,5 +44,28 @@ let
         unionOfDisjoint perSystem_outputs flake_outputs
       );
     in outputs;
+
+  perSystemUtil = { system, pkgs }: {
+
+    wrapCmd =
+      { pkg,
+        name ? pkg.name,
+        path ? "/bin/${name}",
+        deps ? [],
+        passthru ? {}
+      }:
+      let
+        args = {
+          passthru = { unwrapped = "${pkg}${path}"; } // passthru;
+          nativeBuildInputs = [ pkgs.makeBinaryWrapper ];
+        };
+        cmd = pkgs.runCommand name args ''
+          mkdir -p "$out/bin"
+          makeWrapper "${pkg}${path}" "$out/bin/${name}" \
+            --prefix PATH : "${nixpkgs.lib.makeBinPath deps}"
+        '';
+      in cmd;
+
+  };
 
 in { inherit mkFlake; }
