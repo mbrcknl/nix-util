@@ -4,7 +4,7 @@ let
 
   inherit (builtins) typeOf;
   inherit (nixpkgs.lib) attrNames mapAttrs foldl';
-  inherit (nixpkgs.lib.attrsets) unionOfDisjoint; 
+  inherit (nixpkgs.lib.attrsets) unionOfDisjoint;
 
   mkFlake = { inputs ? {}, flake ? _: {}, perSystem ? _: {} }:
     let
