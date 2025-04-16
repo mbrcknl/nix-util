@@ -56,7 +56,7 @@ let
       }:
       let
         args = {
-          passthru = { unwrapped = "${pkg}${path}"; } // passthru;
+          passthru = { unwrapped = "${pkg}${path}"; inherit deps; } // passthru;
           nativeBuildInputs = [ pkgs.makeBinaryWrapper ];
         };
         cmd = pkgs.runCommand name args ''
